@@ -7,7 +7,17 @@ const app = express();
 
 app.use(bodyparser.json());
 
-io.on("connection", (socket) => {})
+const emailToSocketMapping = new Map();
+
+io.on("connection", (socket) => {
+    socket.on("join-room", (data)=>{
+        const { roomId, emailId } = data;
+        console.log("User ", emailId, "Joined Room ", roomId);
+        emailToSocketMapping.set(emailId,socket.id);
+        socket.join(roomId);
+        socket.broadcast.to(roomId).emit("user-joined", { emailId });
+    })
+})
 
 app.listen(8000,()=>{
     console.log("Http server is running at 8000");
